@@ -2,7 +2,8 @@ db
 incremental_db
 output_files
 work
-*.vhd~
+*~
 *.qws
 transcript
 *.wlf
+*.swp

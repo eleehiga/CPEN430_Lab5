@@ -1,6 +1,6 @@
 set_location_assignment PIN_Y2 -to clk
 
-set_location_assignment PIN_M23 -to key0
+set_location_assignment PIN_M23 -to rst
 set_location_assignment PIN_N21 -to key2
 set_location_assignment PIN_R24 -to key3
 
@@ -18,5 +18,5 @@ set_location_assignment PIN_M1 -to lcd_rw
 set_location_assignment PIN_M2 -to lcd_rs
 set_location_assignment PIN_L5 -to lcd_on
 
-set_location_assignment PIN_E21 -to led0
-set_location_assignment PIN_E22 -to led1
+set_location_assignment PIN_E21 -to lose
+set_location_assignment PIN_E22 -to win

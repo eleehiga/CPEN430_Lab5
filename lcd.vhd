@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity keys_lcd is
 port (	key3:			in std_logic;
 	key2:			in std_logic;
-	key0:			in std_logic;
+	rst:			in std_logic;
 	clk:			in std_logic;
 	lcd_data:		out std_logic_vector(7 downto 0);
 	lcd_en:			out std_logic;
