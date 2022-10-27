@@ -4,13 +4,16 @@ use ieee.numeric_std.all;
 
 entity keys_lcd is
 port (	key3:			in std_logic;
+	key2:			in std_logic;
 	key0:			in std_logic;
 	clk:			in std_logic;
 	lcd_data:		out std_logic_vector(7 downto 0);
 	lcd_en:			out std_logic;
 	lcd_rw:			out std_logic;
 	lcd_rs:			out std_logic;
-	lcd_on:			out std_logic
+	lcd_on:			out std_logic;
+	led0:			out std_logic;
+	led1:			out std_logic
 );
 end keys_lcd;
 

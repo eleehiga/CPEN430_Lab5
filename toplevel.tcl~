@@ -17,6 +17,3 @@ set_location_assignment PIN_L4 -to lcd_en
 set_location_assignment PIN_M1 -to lcd_rw
 set_location_assignment PIN_M2 -to lcd_rs
 set_location_assignment PIN_L5 -to lcd_on
-
-set_location_assignment PIN_E21 -to led0
-set_location_assignment PIN_E22 -to led1
