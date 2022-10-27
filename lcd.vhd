@@ -3,9 +3,11 @@ USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity keys_lcd is
-port (	key3:			in std_logic;
-	key2:			in std_logic;
+port (	
 	rst:			in std_logic;
+	roll_1:			in std_logic_vector(2 downto 0);
+	roll_2:			in std_logic_vector(2 downto 0);
+	sum:			in std_logic_vector(3 downto 0);
 	clk:			in std_logic;
 	lcd_data:		out std_logic_vector(7 downto 0);
 	lcd_en:			out std_logic;
@@ -20,7 +22,7 @@ end keys_lcd;
 -- when keys pushed they go to zero
 architecture rtl of keys_lcd is -- call output logic
 type state_t is (func_set1, func_set2, func_set3, func_set4, clear_disp,init_ret_home,wait0,wait1,
-	disp_control, entry_mode, set_addr, write_data, return_home, write_exceed, 
+	disp_control, entry_mode, set_addr, write_roll1, return_home, write_roll2, 
 	debounce, second_line, write_second, waitD);
 signal state, next_state: state_t;
 signal count, count_d: std_logic_vector(7 downto 0);

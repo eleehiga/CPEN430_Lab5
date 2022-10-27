@@ -14,8 +14,8 @@ port (	key3:			in std_logic;
 	lcd_rw:			out std_logic;
 	lcd_rs:			out std_logic;
 	lcd_on:			out std_logic;
-	led0:			out std_logic;
-	led1:			out std_logic
+	lose:			out std_logic;
+	win:			out std_logic
 );
 end toplevel;
 
@@ -42,7 +42,9 @@ architecture rtl of toplevel is -- taillight state machine
 
 	component lcd
 		port (
-			reset:			in std_logic;
+			rst:			in std_logic;
+			roll_1:			in std_logic_vector(2 downto 0);
+			roll_2:			in std_logic_vector(2 downto 0);
 			sum:			in std_logic_vector(3 downto 0);
 			clk:			in std_logic;
 			lcd_data:		out std_logic_vector(7 downto 0);
@@ -83,6 +85,8 @@ begin
 	lcd_instance: lcd
 	port map(
 			rst => rst,
+			roll_1 => roll_1,
+			roll_2 => roll_2,
 			sum => sum;
 			clk => slow_clk,
 			lcd_data=> lcd_data,
