@@ -1,3 +1,12 @@
+-- Impliments craps logic to decide who wins the game
+-- How it works:
+-- Uses two linked state machines; the game state
+-- and the roll changes state. Whenever the game
+-- needs a sum to decide the next state it waits
+-- until the changes state is in the both_rolls_changed
+-- state. The game continues until it enters the win
+-- or lose state where it waits for a reset to change
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
