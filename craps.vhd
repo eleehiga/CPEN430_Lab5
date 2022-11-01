@@ -55,7 +55,7 @@ begin
 		end if;
 	end process;
 	
-	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2)
+	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2, currstate_game, reset)
 	begin
 		
 		-- default roll over
@@ -85,45 +85,40 @@ begin
 				if(currchanged_1 = '1') then
 					nextstate_rolls <= both_rolls_changed;
 				end if;
-			when both_rolls_changed =>
-				case currstate_game is
-					-- stop taking in rolls and wait
-					when firstroll =>
-						nextroll_1 <= currroll_1;
-						nextroll_2 <= currroll_2;
-					when morerolls =>
-						nextroll_1 <= currroll_1;
-						nextroll_2 <= currroll_2;
-					when win_s =>
-						nextroll_1 <= currroll_1;
-						nextroll_2 <= currroll_2;
-					when lose_s =>
-						nextroll_1 <= currroll_1;
-						nextroll_2 <= currroll_2;
-					-- more rolls could be needed -> get ahead of the game and start taking in rolls/ reset
-					when firstroll_check =>
-						nextroll_1 <= unsigned(roll_1);
-						nextroll_2 <= unsigned(roll_2);
-						nextstate_rolls <= nochange;
-					when morerolls_check =>
-						nextroll_1 <= unsigned(roll_1);
-						nextroll_2 <= unsigned(roll_2);
-						nextstate_rolls <= nochange;
-				end case;
+			-- roll over until the state machine for the game changes to the checking states
+			when both_rolls_changed => 
+				if((currstate_game = firstroll_check) or (currstate_game = morerolls_check)) then
+					nextstate_rolls <= nochange;
+					nextroll_1 <= "000";
+					nextroll_2 <= "000";
+				else
+					nextroll_1 <= currroll_1;
+					nextroll_2 <= currroll_2;
+				end if;
 		end case;
 		
 	end process;
 	
-	changed_logic: process(nextroll_1, currroll_1, nextroll_2, currroll_2)
+	changed_flag_statemachines: process(nextroll_1, currroll_1, nextroll_2, currroll_2, currstate_rolls, reset)
 	begin
-		-- set flags if change is detected, otherwise roll over values
-		if(nextroll_1 /= currroll_1) then
+		-- set flags if change is detected
+		if(nextroll_1 /= currroll_1 and reset = '1') then
 			nextchanged_1 <= '1';
+		-- reset flags if currstate_rolls is both changed
+		elsif(currstate_rolls = both_rolls_changed) then
+			nextchanged_1 <= '0';
+		-- roll over values otherwise
 		else
 			nextchanged_1 <= currchanged_1;
 		end if;
-		if(nextroll_2 /= currroll_2) then
+		
+		-- set flags if change is detected
+		if(nextroll_2 /= currroll_2 and reset = '1') then
 			nextchanged_2 <= '1';
+		-- reset flags if currstate_rolls is both changed
+		elsif(currstate_rolls = both_rolls_changed) then
+			nextchanged_2 <= '0';
+		-- roll over values otherwise
 		else
 			nextchanged_2 <= currchanged_2;
 		end if;
