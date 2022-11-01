@@ -23,6 +23,8 @@ type state_t is (func_set1, func_set2, func_set3, func_set4, clear_disp,init_ret
 	disp_control, entry_mode, set_addr, write_roll1, return_home, write_roll2, 
 	write_pipe, second_line, write_second);
 signal state, next_state: state_t;
+signal zero: std_logic_vector(7 downto 0) := "00110000";
+signal A: std_logic_vector(7 downto 0) := "01000001";
 begin 
 	lcd_en <= clk; -- enable is set by the clock
 	the_machine: process(state)
@@ -100,7 +102,7 @@ begin
 				lcd_on <= '1'; -- keep lcd on in writeup
 				lcd_rw <= '0';
 				lcd_rs <= '1';
-				lcd_data <= "01010111";-- write a 0
+				lcd_data <= std_logic_vector(unsigned(zero)+unsigned(roll_1));-- write a roll_1
 				next_state <= write_pipe; -- for writing data
 			when write_pipe =>
 				lcd_on <= '1'; -- keep lcd on in writeup
@@ -112,7 +114,7 @@ begin
 				lcd_on <= '1'; -- keep lcd on in writeup
 				lcd_rw <= '0';
 				lcd_rs <= '1';
-				lcd_data <= "01111100";-- write a '|'
+				lcd_data <= std_logic_vector(unsigned(zero)+unsigned(roll_2));-- write a roll_2
 				next_state <= second_line; -- for writing data
 			when second_line =>
 				lcd_on <= '1'; -- keep lcd off in setup
@@ -124,7 +126,12 @@ begin
 				lcd_on <= '1'; -- keep lcd on in writeup
 				lcd_rw <= '0';
 				lcd_rs <= '1';
-				lcd_data <= "01000001";-- write a A
+				if(unsigned(sum) < 10) then
+					lcd_data <= std_logic_vector(unsigned(zero)+unsigned(sum));-- write a roll_2
+					-- lcd_data <= std_logic_vector(unsigned(zero)+8);-- write a roll_2
+				else -- hex A to F
+					lcd_data <= std_logic_vector(unsigned(A)+unsigned(sum));-- write a roll_2
+				end if;
 				next_state <= return_home; 
 			when return_home =>
 				lcd_on <= '1'; -- keep lcd on in writeup
