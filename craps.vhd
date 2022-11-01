@@ -111,6 +111,11 @@ begin
 						nextstate_rolls <= nochange;
 				end case;
 		end case;
+		
+	end process;
+	
+	changed_logic: process(nextroll_1, currroll_1, nextroll_2, currroll_2)
+	begin
 		-- set flags if change is detected, otherwise roll over values
 		if(nextroll_1 /= currroll_1) then
 			nextchanged_1 <= '1';
@@ -124,7 +129,7 @@ begin
 		end if;
 	end process;
 	
-	state_machine_game: process(currstate_game, currstate_rolls)
+	state_machine_game: process(currstate_game, currstate_rolls, currsum, currpoint)
 	begin
 		-- default rollovers
 		nextsum <= currsum;
@@ -135,7 +140,7 @@ begin
 				if(currstate_rolls = both_rolls_changed) then
 					-- prep the sum and go to check sum state
 					nextstate_game <= firstroll_check;
-					nextsum <= currroll_1 + currroll_2;
+					nextsum <= ('0' & currroll_1) + ('0' & currroll_2);
 				else
 					-- wait
 					nextstate_game <= currstate_game;
@@ -163,7 +168,7 @@ begin
 				if(currstate_rolls = both_rolls_changed) then
 					-- prep the sum and go to check sum state
 					nextstate_game <= morerolls_check;
-					nextsum <= currroll_1 + currroll_2;
+					nextsum <= ('0' & currroll_1) + ('0' & currroll_2);
 				else
 					-- wait
 					nextstate_game <= currstate_game;
