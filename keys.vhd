@@ -7,8 +7,8 @@ port (	key3:			in std_logic;
 	key2:			in std_logic;
 	rst:			in std_logic;
 	clk:			in std_logic;
-	roll1:			out std_logic_vector(2 downto 0);
-	roll2:			out std_logic_vector(2 downto 0)
+	roll_1:			out std_logic_vector(2 downto 0);
+	roll_2:			out std_logic_vector(2 downto 0)
 );
 end keys;
 

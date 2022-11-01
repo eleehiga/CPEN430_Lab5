@@ -23,7 +23,6 @@ type state_t is (func_set1, func_set2, func_set3, func_set4, clear_disp,init_ret
 	disp_control, entry_mode, set_addr, write_roll1, return_home, write_roll2, 
 	set_space, second_line, write_second);
 signal state, next_state: state_t;
-signal count, count_d: std_logic_vector(7 downto 0);
 begin 
 	lcd_en <= clk; -- enable is set by the clock
 	the_machine: process(state)
