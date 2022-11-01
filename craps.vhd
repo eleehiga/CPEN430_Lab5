@@ -13,13 +13,14 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity craps_game is
-	port(roll_1: in std_logic_vector(2 downto 0);
-			roll_2: in std_logic_vector(2 downto 0);
-			clock: in std_logic;
-			reset: in std_logic;
-			sum: out std_logic_vector(3 downto 0);
-			win: out std_logic;
-			lose: out std_logic);
+	port(
+		roll_1: in std_logic_vector(2 downto 0);
+		roll_2: in std_logic_vector(2 downto 0);
+		clk: in std_logic;
+		rst: in std_logic;
+		sum: out std_logic_vector(3 downto 0);
+		win: out std_logic;
+		lose: out std_logic);
 end craps_game;
 
 architecture rtl of craps_game is
@@ -32,9 +33,9 @@ architecture rtl of craps_game is
 	signal currroll_1, currroll_2, nextroll_1, nextroll_2: unsigned(2 downto 0);
 	signal currchanged_1, currchanged_2, nextchanged_1, nextchanged_2: std_logic;
 begin
-	registers:process(clock, reset)
+	registers:process(clk, rst)
 	begin
-		if(reset = '0') then
+		if(rst = '0') then
 			currstate_game <= firstroll;
 			currstate_rolls <= nochange;
 			currsum <= "0000";
@@ -43,7 +44,7 @@ begin
 			currchanged_1 <= '0';
 			currchanged_2 <= '0';
 			currpoint <= "0000";
-		elsif (clock'event and clock = '1') then
+		elsif (clk'event and clk = '1') then
 			currstate_game <= nextstate_game;
 			currstate_rolls <= nextstate_rolls;
 			currsum <= nextsum;
