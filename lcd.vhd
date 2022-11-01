@@ -21,7 +21,7 @@ end lcd;
 architecture rtl of lcd is -- call output logic
 type state_t is (func_set1, func_set2, func_set3, func_set4, clear_disp,init_ret_home,wait0,wait1,
 	disp_control, entry_mode, set_addr, write_roll1, return_home, write_roll2, 
-	set_space, second_line, write_second);
+	write_pipe, second_line, write_second);
 signal state, next_state: state_t;
 begin 
 	lcd_en <= clk; -- enable is set by the clock
@@ -101,7 +101,19 @@ begin
 				lcd_rw <= '0';
 				lcd_rs <= '1';
 				lcd_data <= "01010111";-- write a 0
-				next_state <= return_home; -- for writing data
+				next_state <= write_pipe; -- for writing data
+			when write_pipe =>
+				lcd_on <= '1'; -- keep lcd on in writeup
+				lcd_rw <= '0';
+				lcd_rs <= '1';
+				lcd_data <= "01111100";-- write a '|'
+				next_state <= write_roll2; -- for writing data
+			when write_roll2 =>
+				lcd_on <= '1'; -- keep lcd on in writeup
+				lcd_rw <= '0';
+				lcd_rs <= '1';
+				lcd_data <= "01111100";-- write a '|'
+				next_state <= second_line; -- for writing data
 			when second_line =>
 				lcd_on <= '1'; -- keep lcd off in setup
 				lcd_rw <= '0';
@@ -134,10 +146,8 @@ begin
 	begin
 		if(rst='0') then
 			state <= func_set1; -- initialize LCD state
-			count <= "00110000"; -- count set to zero digit on LCD
 		elsif(clk = '1' and clk'event) then
 			state <= next_state;
-			count <= count_d; -- load temporary counter variable to actual counter variable
 		end if;
 	end process the_registers;
 
