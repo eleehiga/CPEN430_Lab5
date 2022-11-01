@@ -21,16 +21,20 @@ end toplevel;
 
 architecture rtl of toplevel is -- taillight state machine
 	signal slow_clk: std_logic;
+	signal roll_1: std_logic_vector(2 downto 0);
+	signal roll_2: std_logic_vector(2 downto 0);
+	signal sum: std_logic_vector(3 downto 0);
 	component keys
 		port (	key3:			in std_logic;
 			key2:			in std_logic;
 			rst:			in std_logic;
-			roll_1:			in std_logic_vector(2 downto 0);
-			roll_2:			in std_logic_vector(2 downto 0);
+			clk:			in std_logic;
+			roll_1:			out std_logic_vector(2 downto 0);
+			roll_2:			out std_logic_vector(2 downto 0)
 	);
 	end component keys;
 
-	component craps
+	component craps_game
 		port(	roll_1: in std_logic_vector(2 downto 0);
 			roll_2: in std_logic_vector(2 downto 0);
 			clk: in std_logic;
@@ -38,7 +42,7 @@ architecture rtl of toplevel is -- taillight state machine
 			sum: out std_logic_vector(3 downto 0);
 			win: out std_logic;
 			lose: out std_logic);
-	end component craps;
+	end component craps_game;
 
 	component lcd
 		port (
@@ -51,9 +55,7 @@ architecture rtl of toplevel is -- taillight state machine
 			lcd_en:			out std_logic;
 			lcd_rw:			out std_logic;
 			lcd_rs:			out std_logic;
-			lcd_on:			out std_logic;
-			led0:			out std_logic;
-			led1:			out std_logic
+			lcd_on:			out std_logic
 	);
 	end component lcd;
 
@@ -67,11 +69,12 @@ begin
 	port map(	key3 => key3,
 			key2 => key2,
 			rst => rst,
+			clk => clk,
 			roll_1 => roll_1,
 			roll_2 => roll_2
 		);
 
-	craps_instance: craps
+	craps_instance: craps_game
 	port map(
 		roll_1 => roll_1,
 		roll_2 => roll_1,
@@ -87,20 +90,18 @@ begin
 			rst => rst,
 			roll_1 => roll_1,
 			roll_2 => roll_2,
-			sum => sum;
+			sum => sum,
 			clk => slow_clk,
 			lcd_data=> lcd_data,
 			lcd_en=> lcd_en,
 			lcd_rw=> lcd_rw,
 			lcd_rs=> lcd_rs,
-			lcd_on=> lcd_on,
-			led0=> led0,
-			led1=> led1
+			lcd_on=> lcd_on
 	);
 
 	counter_instance: counter
 	port map(
-	rst => key0, -- key 0 is the reset key
+	rst => rst, -- key 0 is the reset key
 	clk => clk,
 	slow_clk => slow_clk
 		);
