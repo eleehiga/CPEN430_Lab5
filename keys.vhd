@@ -78,7 +78,7 @@ begin
 		if(clk='1' and clk'event) then
 			if(pressed_key3 = '0') then
 				next_in_roll1 <= std_logic_vector(unsigned(curr_in_roll1) + 1);
-				if(unsigned(next_in_roll1) > 7) then
+				if(unsigned(next_in_roll1) > 6) then
 					next_in_roll1 <= "001";
 				end if;
 			else -- '1'
@@ -92,7 +92,7 @@ begin
 		if(clk='1' and clk'event) then
 			if(pressed_key2 = '0') then
 				next_in_roll2 <= std_logic_vector(unsigned(curr_in_roll2) + 1);
-				if(unsigned(next_in_roll2) > 7) then
+				if(unsigned(next_in_roll2) > 6) then
 					next_in_roll2 <= "001";
 				end if;
 			else -- '1'

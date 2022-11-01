@@ -56,7 +56,7 @@ begin
 		end if;
 	end process;
 	
-	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2, currstate_game, reset)
+	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2, currstate_game, rst)
 	begin
 		
 		-- default roll over
@@ -100,10 +100,10 @@ begin
 		
 	end process;
 	
-	changed_flag_statemachines: process(nextroll_1, currroll_1, nextroll_2, currroll_2, currstate_rolls, reset)
+	changed_flag_statemachines: process(nextroll_1, currroll_1, nextroll_2, currroll_2, currstate_rolls, rst)
 	begin
 		-- set flags if change is detected
-		if(nextroll_1 /= currroll_1 and reset = '1') then
+		if(nextroll_1 /= currroll_1 and rst = '1') then
 			nextchanged_1 <= '1';
 		-- reset flags if currstate_rolls is both changed
 		elsif(currstate_rolls = both_rolls_changed) then
@@ -114,7 +114,7 @@ begin
 		end if;
 		
 		-- set flags if change is detected
-		if(nextroll_2 /= currroll_2 and reset = '1') then
+		if(nextroll_2 /= currroll_2 and rst = '1') then
 			nextchanged_2 <= '1';
 		-- reset flags if currstate_rolls is both changed
 		elsif(currstate_rolls = both_rolls_changed) then
