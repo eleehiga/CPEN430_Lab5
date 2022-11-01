@@ -14,11 +14,12 @@ entity craps_game is
 end craps_game;
 
 architecture rtl of craps_game is
-	type state_t_game is (firstroll, morerolls, gameover);
+	type state_t_game is (firstroll, firstroll_check, morerolls,morerolls_check, win, lose);
 	signal currstate_game, nextstate_game: state_t_game;
 	type state_t_rolls is (nochange, changed);
 	signal currstate_rolls, nextstate_rolls: state_t_rolls;
 	signal currsum, nextsum, sum: std_logic_vector(3 downto 0);
+	signal currpoint, nextpoint: std_logic_vector(3 downto 0);
 	signal currrole_1, currrole_2, nextrole_1, nextrole_2: std_logic_vector(2 downto 0);
 	signal currchanged_1, currchanged_2, nextchanged_1, nextchanged_2: std_logic;
 begin
@@ -31,6 +32,7 @@ begin
 			currrole_2 <= "000";
 			currchanged_1 <= '0';
 			currchanged_2 <= '0';
+			currpoint <= "0000";
 		elsif (clock'event and clock = '1') then
 			currstate <= nextstate;
 			currsum <= nextsum;
@@ -38,6 +40,7 @@ begin
 			currrole_2 <= nextrole_2;
 			currchanged_1 <= nextchanged_1;
 			currchanged_2 <= nextchanged_2;
+			currpoint <= nextpoint;
 		end if;
 	end process;
 	
@@ -72,16 +75,30 @@ begin
 					nextsate_rolls <= both_rolls_changed;
 				end if;
 			when both_rolls_changed =>
-				if(nextstate_game = currstate_game) then
-					-- stop taking in both rolls
-					nextroll_1 <= currrole_1;
-					nextroll_2 <= currrole_2;
-				else
-					-- continue taking in both rolls and go back to no change state
-					nextrole_1 <= roll_1;
-					nextrole_2 <= roll_2;
-					nextstate_rolls <= nochange;
-				end if;
+				case currstate_game is
+					-- stop taking in rolls and wait
+					when firstroll =>
+						nextroll_1 <= currrole_1;
+						nextroll_2 <= currrole_2;
+					when morerolls =>
+						nextroll_1 <= currrole_1;
+						nextroll_2 <= currrole_2;
+					when win =>
+						nextroll_1 <= currrole_1;
+						nextroll_2 <= currrole_2;
+					when lose =>
+						nextroll_1 <= currrole_1;
+						nextroll_2 <= currrole_2;
+					-- more rolls could be needed -> get ahead of the game and start taking in rolls/ reset
+					when firstroll_check =>
+						nextrole_1 <= roll_1;
+						nextrole_2 <= roll_2;
+						nextstate_rolls <= nochange;
+					when morerolls_check =>
+						nextrole_1 <= roll_1;
+						nextrole_2 <= roll_2;
+						nextstate_rolls <= nochange;
+				end case;
 		end case;
 		-- set flags if change is detected, otherwise roll over values
 		if(nextrole_1 != currrole_1) then
@@ -96,17 +113,84 @@ begin
 		end if;
 	end process;
 	
-	state_machine_game: process(currstate, currchanged_1, currchanged_2)
+	state_machine_game: process(currstate_game, currstate_rolls)
 	begin
+		-- default rollovers
+		nextsum <= currsum;
+		nextpoint <= currpoint;
 		case currstate is
 			when firstroll =>
+				-- check if both dice rolled
 				if(currstate_rolls = both_rolls_changed) then
-					nextstate_rolls <= morerolls;
+					-- prep the sum and go to check sum state
+					nextstate_game <= firstroll_check;
+					nextsum <= std_logic_vector(unsigned(currrole_1) + unsigned(currrol_2));
 				else
-					nextstate_rolls <= firstroll;
+					-- wait
+					nextstate_game <= currstate_game;
 				end if;
+			when firstroll_check =>
+				case unsigned(currsum) is
+					-- check for winning sums
+					when 7 => nextstate_game <= win;
+					when 11 => nextstate_game <= win;
+					-- check for losing sums
+					when 2 => nextstate_game <= lose;
+					when 3 => nextstate_game <= lose;
+					when 12 => nextstate_game <= lose;
+					-- more rolls needed otherwise
+					when others => 
+						-- set point register
+						nextpoint <= currsum;
+						-- reset sum
+						nextsum <= "0000";
+						-- go to next state of the game -> more rolls needed
+						nextstate_game <= morerolls;
+				end case;
 			when morerolls =>
-			when gameover =>
+				-- check if both dice rolled
+				if(currstate_rolls = both_rolls_changed) then
+					-- prep the sum and go to check sum state
+					nextstate_game <= morerolls_check;
+					nextsum <= std_logic_vector(unsigned(currrole_1) + unsigned(currrol_2));
+				else
+					-- wait
+					nextstate_game <= currstate_game;
+				end if;
+			when morerolls_check =>
+				case unsigned(currsum) is
+					-- check if winning sum
+					when unsigned(currpoint) => nextstate_game <= win;
+					-- check if losing sum
+					when 7 => nextstate_game <= lose;
+					-- go back to more rolls state otherwise
+					when others =>
+						-- reset sum
+						nextsum <= "0000";
+						-- more rolls needed
+						nextstate_game <= morerolls;
+				end case;
+			-- wait until reset
+			when win => nextstate_game <= currstate_game;
+			when lose => nextstate_game <= currstate_game;
 		end case;
 	end process;
+	
+	output_logic_game: process(currstate_game)
+	begin
+		case currstate_game is
+			when win =>
+				win <= '1';
+				lose <= '0';
+			when lose =>
+				win <= '0';
+				lose <= '1';
+			when others =>
+				win <= '0';
+				lose <= '0';
+		end case;
+	end process;
+	
+	-- dummy assignment
+	sum <= currsum;
 end rtl;
