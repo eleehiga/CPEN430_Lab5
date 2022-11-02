@@ -39,8 +39,8 @@ begin
 			currstate_game <= firstroll;
 			currstate_rolls <= nochange;
 			currsum <= "0000";
-			currroll_1 <= "000";
-			currroll_2 <= "000";
+			currroll_1 <= "001";
+			currroll_2 <= "001";
 			currchanged_1 <= '0';
 			currchanged_2 <= '0';
 			currpoint <= "0000";
@@ -90,8 +90,8 @@ begin
 			when both_rolls_changed => 
 				if((currstate_game = firstroll_check) or (currstate_game = morerolls_check)) then
 					nextstate_rolls <= nochange;
-					nextroll_1 <= "000";
-					nextroll_2 <= "000";
+					nextroll_1 <= "001";
+					nextroll_2 <= "001";
 				else
 					nextroll_1 <= currroll_1;
 					nextroll_2 <= currroll_2;

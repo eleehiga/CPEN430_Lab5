@@ -17,7 +17,7 @@ architecture rtl of keys is -- call output logic
 signal count, count_d: std_logic_vector(7 downto 0);
 signal clean_key2, clean_key3, q1_key2, q2_key2, q1_key3, q2_key3: std_logic;
 signal curr_in_roll1, curr_in_roll2, next_in_roll1, next_in_roll2,
-	curr_out_roll1, curr_out_roll2, next_out_roll1, next_out_roll2: std_logic_vector(2 downto 0) := "001";
+	curr_out_roll1, curr_out_roll2, next_out_roll1, next_out_roll2: std_logic_vector(2 downto 0);
 signal pressed_key3, pressed_key2: std_logic := '0';
 begin 
 
@@ -46,58 +46,41 @@ begin
 			curr_in_roll2 <= "001";
 			curr_out_roll1 <= "001";
 			curr_out_roll2 <= "001";
+			pressed_key3 <= '1';
+			pressed_key2 <= '1';
 		elsif(clk='1' and clk'event) then
 			curr_in_roll1 <= next_in_roll1;
 			curr_in_roll2 <= next_in_roll2;
 			curr_out_roll1 <= next_out_roll1;
 			curr_out_roll2 <= next_out_roll2;
+			pressed_key3 <= clean_key3;
+			pressed_key2 <= clean_key2;
 		end if;
 	end process rst_roll;
 
-	update_press_key3: process(clean_key3)
-	begin
-		if(clean_key3 = '0') then
-			pressed_key3 <= '0';
-		else
-			pressed_key3 <= '1';
-		end if;
-	end process update_press_key3;
-
-	update_press_key2: process(clean_key2)
-	begin
-		if(clean_key2 = '0') then
-			pressed_key2 <= '0';
-		else
-			pressed_key2 <= '1';
-		end if;
-	end process update_press_key2;
-
-
 	rolling1: process(clk,pressed_key3, curr_in_roll1)
 	begin
-		if(clk='1' and clk'event) then
-			if(pressed_key3 = '0') then
+		if(pressed_key3 = '0') then
+			if(unsigned(curr_in_roll1) > 5) then
+				next_in_roll1 <= "001";
+			else
 				next_in_roll1 <= std_logic_vector(unsigned(curr_in_roll1) + 1);
-				if(unsigned(next_in_roll1) > 6) then
-					next_in_roll1 <= "001";
-				end if;
-			else -- '1'
-				next_in_roll1 <= curr_in_roll1;
 			end if;
+		else -- '1'
+			next_in_roll1 <= curr_in_roll1;
 		end if;
 	end process rolling1;
 
 	rolling2:process(clk,pressed_key2, curr_in_roll2)
 	begin
-		if(clk='1' and clk'event) then
-			if(pressed_key2 = '0') then
+		if(pressed_key2 = '0') then
+			if(unsigned(curr_in_roll2) > 5) then
+				next_in_roll2 <= "001";
+			else
 				next_in_roll2 <= std_logic_vector(unsigned(curr_in_roll2) + 1);
-				if(unsigned(next_in_roll2) > 6) then
-					next_in_roll2 <= "001";
-				end if;
-			else -- '1'
-				next_in_roll2 <= curr_in_roll2;
 			end if;
+		else -- '1'
+			next_in_roll2 <= curr_in_roll2;
 		end if;
 	end process rolling2;
 

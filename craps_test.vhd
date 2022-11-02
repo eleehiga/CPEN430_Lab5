@@ -25,8 +25,8 @@ begin
 	-- roll1_temp <= unsigned(roll_1);
 	-- roll2_temp <= "010";
 	-- roll1_temp <= "110";
-	-- sum_temp <= ('0'&roll1_temp)+('0'&roll2_temp);
-	sum_temp <= ('0'&"010")+('0'&"110");
+	sum_temp <= ('0'&roll1_temp)+('0'&roll2_temp);
+	-- sum_temp <= ('0'&"010")+('0'&"110");
 	-- TODO: fix error with truncated third bit
 	sum <= std_logic_vector(sum_temp);
 end rtl;
