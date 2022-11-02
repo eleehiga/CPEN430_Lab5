@@ -18,7 +18,7 @@ signal count, count_d: std_logic_vector(7 downto 0);
 signal clean_key2, clean_key3, q1_key2, q2_key2, q1_key3, q2_key3: std_logic;
 signal curr_in_roll1, curr_in_roll2, next_in_roll1, next_in_roll2,
 	curr_out_roll1, curr_out_roll2, next_out_roll1, next_out_roll2: std_logic_vector(2 downto 0);
-signal pressed_key3, pressed_key2: std_logic := '0';
+signal pressed_key3, pressed_key2: std_logic := '1';
 begin 
 
 	debouncer_key3: process(key3, clk, q1_key3, q2_key3)
@@ -26,8 +26,12 @@ begin
 		if(clk='1' and clk'event) then
 			q1_key3 <= key3;
 			q2_key3 <= q1_key3;
+			if(pressed_key3='1' and (not(q1_key3) and q2_key3)='1') then
+				clean_key3<='0'; -- falling edge
+			elsif(pressed_key3='0' and (q1_key3 and not(q2_key3))='1') then
+				clean_key3<='1'; -- rising edge
+			end if;
 		end if;
-		clean_key3 <= not(not(q1_key3) and q2_key3);
 	end process debouncer_key3;
 
 	debouncer_key2: process(key2, clk, q1_key2, q2_key2)
@@ -35,6 +39,11 @@ begin
 		if(clk='1' and clk'event) then
 			q1_key2 <= key2;
 			q2_key2 <= q1_key2;
+			if(pressed_key2='1' and (not(q1_key2) and q2_key2)='1') then
+				clean_key2<='0'; -- falling edge
+			elsif(pressed_key2='0' and (q1_key2 and not(q2_key2))='1') then
+				clean_key2<='1';
+			end if;
 		end if;
 		clean_key2 <= not(not(q1_key2) and q2_key2);
 	end process debouncer_key2;
