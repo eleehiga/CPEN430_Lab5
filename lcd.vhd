@@ -5,8 +5,8 @@ use ieee.numeric_std.all;
 entity lcd is
 port (	
 	rst:			in std_logic;
-	roll_1:			in std_logic_vector(2 downto 0);
-	roll_2:			in std_logic_vector(2 downto 0);
+	roll_1_stored:		in std_logic_vector(2 downto 0);
+	roll_2_stored:		in std_logic_vector(2 downto 0);
 	sum:			in std_logic_vector(3 downto 0);
 	clk:			in std_logic;
 	lcd_data:		out std_logic_vector(7 downto 0);
@@ -102,19 +102,19 @@ begin
 				lcd_on <= '1'; -- keep lcd on in writeup
 				lcd_rw <= '0';
 				lcd_rs <= '1';
-				lcd_data <= zero&roll_1;-- write a roll_1
+				lcd_data <= zero&roll_1_stored; -- write a roll_1
 				next_state <= write_pipe; -- for writing data
 			when write_pipe =>
 				lcd_on <= '1'; -- keep lcd on in writeup
 				lcd_rw <= '0';
 				lcd_rs <= '1';
-				lcd_data <= "01111100";-- write a '|'
+				lcd_data <= "01111100"; -- write a '|'
 				next_state <= write_roll2; -- for writing data
 			when write_roll2 =>
 				lcd_on <= '1'; -- keep lcd on in writeup
 				lcd_rw <= '0';
 				lcd_rs <= '1';
-				lcd_data <= zero&roll_2;-- write a roll_2
+				lcd_data <= zero&roll_2_stored; -- write a roll_2
 				next_state <= second_line; -- for writing data
 			when second_line =>
 				lcd_on <= '1'; -- keep lcd off in setup

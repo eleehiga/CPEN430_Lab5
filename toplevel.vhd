@@ -21,8 +21,8 @@ end toplevel;
 
 architecture rtl of toplevel is -- taillight state machine
 	signal slow_clk: std_logic;
-	signal roll_1: std_logic_vector(2 downto 0);
-	signal roll_2: std_logic_vector(2 downto 0);
+	signal roll_1, roll_1_stored: std_logic_vector(2 downto 0);
+	signal roll_2, roll_2_stored: std_logic_vector(2 downto 0);
 	signal sum: std_logic_vector(3 downto 0);
 	component keys
 		port (	key3:			in std_logic;
@@ -41,14 +41,17 @@ architecture rtl of toplevel is -- taillight state machine
 			rst: in std_logic;
 			sum: out std_logic_vector(3 downto 0);
 			win: out std_logic;
-			lose: out std_logic);
+			lose: out std_logic;
+			roll_1_stored: out std_logic_vector(2 downto 0);
+			roll_2_stored: out std_logic_vector(2 downto 0)
+		);
 	end component craps_game;
 
 	component lcd
 		port (
 			rst:			in std_logic;
-			roll_1:			in std_logic_vector(2 downto 0);
-			roll_2:			in std_logic_vector(2 downto 0);
+			roll_1_stored:		in std_logic_vector(2 downto 0);
+			roll_2_stored:		in std_logic_vector(2 downto 0);
 			sum:			in std_logic_vector(3 downto 0);
 			clk:			in std_logic;
 			lcd_data:		out std_logic_vector(7 downto 0);
@@ -77,19 +80,21 @@ begin
 	craps_instance: craps_game
 	port map(
 		roll_1 => roll_1,
-		roll_2 => roll_1,
+		roll_2 => roll_2,
 		clk => clk,
 		rst => rst,
 		sum => sum,
 		win => win,
-		lose => lose
+		lose => lose,
+		roll_1_stored => roll_1_stored,
+		roll_2_stored => roll_2_stored
 		);
 
 	lcd_instance: lcd
 	port map(
 			rst => rst,
-			roll_1 => roll_1,
-			roll_2 => roll_2,
+			roll_1_stored => roll_1_stored,
+			roll_2_stored => roll_2_stored,
 			sum => sum,
 			clk => slow_clk,
 			lcd_data=> lcd_data,
