@@ -13,14 +13,15 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity craps_game is
-	port(
-		roll_1: in std_logic_vector(2 downto 0);
-		roll_2: in std_logic_vector(2 downto 0);
-		clk: in std_logic;
-		rst: in std_logic;
-		sum: out std_logic_vector(3 downto 0);
-		win: out std_logic;
-		lose: out std_logic);
+	port(roll_1: in std_logic_vector(2 downto 0);
+			roll_2: in std_logic_vector(2 downto 0);
+			clock: in std_logic;
+			reset: in std_logic;
+			sum: out std_logic_vector(3 downto 0);
+			win: out std_logic;
+			lose: out std_logic;
+			roll_1_stored: out std_logic_vector(3 downto 0);
+			roll_2_stored: out std_logic_vector(3 downto 0));
 end craps_game;
 
 architecture rtl of craps_game is
@@ -33,18 +34,18 @@ architecture rtl of craps_game is
 	signal currroll_1, currroll_2, nextroll_1, nextroll_2: unsigned(2 downto 0);
 	signal currchanged_1, currchanged_2, nextchanged_1, nextchanged_2: std_logic;
 begin
-	registers:process(clk, rst)
+	registers:process(clock, reset)
 	begin
-		if(rst = '0') then
+		if(reset = '0') then
 			currstate_game <= firstroll;
 			currstate_rolls <= nochange;
 			currsum <= "0000";
-			currroll_1 <= "001";
-			currroll_2 <= "001";
+			currroll_1 <= "000";
+			currroll_2 <= "000";
 			currchanged_1 <= '0';
 			currchanged_2 <= '0';
 			currpoint <= "0000";
-		elsif (clk'event and clk = '1') then
+		elsif (clock'event and clock = '1') then
 			currstate_game <= nextstate_game;
 			currstate_rolls <= nextstate_rolls;
 			currsum <= nextsum;
@@ -56,7 +57,7 @@ begin
 		end if;
 	end process;
 	
-	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2, currstate_game, rst)
+	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2, currstate_game, reset)
 	begin
 		
 		-- default roll over
@@ -90,8 +91,8 @@ begin
 			when both_rolls_changed => 
 				if((currstate_game = firstroll_check) or (currstate_game = morerolls_check)) then
 					nextstate_rolls <= nochange;
-					nextroll_1 <= "001";
-					nextroll_2 <= "001";
+					nextroll_1 <= "000";
+					nextroll_2 <= "000";
 				else
 					nextroll_1 <= currroll_1;
 					nextroll_2 <= currroll_2;
@@ -100,10 +101,10 @@ begin
 		
 	end process;
 	
-	changed_flag_statemachines: process(nextroll_1, currroll_1, nextroll_2, currroll_2, currstate_rolls, rst)
+	changed_flag_statemachines: process(nextroll_1, currroll_1, nextroll_2, currroll_2, currstate_rolls, reset)
 	begin
 		-- set flags if change is detected
-		if(nextroll_1 /= currroll_1 and rst = '1') then
+		if(nextroll_1 /= currroll_1 and reset = '1') then
 			nextchanged_1 <= '1';
 		-- reset flags if currstate_rolls is both changed
 		elsif(currstate_rolls = both_rolls_changed) then
@@ -114,7 +115,7 @@ begin
 		end if;
 		
 		-- set flags if change is detected
-		if(nextroll_2 /= currroll_2 and rst = '1') then
+		if(nextroll_2 /= currroll_2 and reset = '1') then
 			nextchanged_2 <= '1';
 		-- reset flags if currstate_rolls is both changed
 		elsif(currstate_rolls = both_rolls_changed) then
