@@ -208,4 +208,6 @@ begin
 	
 	-- dummy assignment
 	sum <= std_logic_vector(currsum);
+	roll_1_stored <= std_logic_vector(currroll_1);
+	roll_2_stored <= std_logic_vector(currroll_2);
 end rtl;
