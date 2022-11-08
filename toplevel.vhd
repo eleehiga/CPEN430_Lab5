@@ -20,7 +20,7 @@ port (	key3:			in std_logic;
 end toplevel;
 
 architecture rtl of toplevel is -- taillight state machine
-	signal slow_clk: std_logic;
+	signal slow_clk, key2Pressed, key3Pressed: std_logic;
 	signal roll_1, roll_1_stored: std_logic_vector(2 downto 0);
 	signal roll_2, roll_2_stored: std_logic_vector(2 downto 0);
 	signal sum: std_logic_vector(3 downto 0);
@@ -29,6 +29,8 @@ architecture rtl of toplevel is -- taillight state machine
 			key2:			in std_logic;
 			rst:			in std_logic;
 			clk:			in std_logic;
+			cleanKey3: out std_logic;
+			cleanKey2: out std_logic;
 			roll_1:			out std_logic_vector(2 downto 0);
 			roll_2:			out std_logic_vector(2 downto 0)
 	);
@@ -37,6 +39,8 @@ architecture rtl of toplevel is -- taillight state machine
 	component craps_game
 		port(	roll_1: in std_logic_vector(2 downto 0);
 			roll_2: in std_logic_vector(2 downto 0);
+			roll_1_pressed: in std_logic;
+			roll_2_pressed: in std_logic;
 			clk: in std_logic;
 			rst: in std_logic;
 			sum: out std_logic_vector(3 downto 0);
@@ -73,6 +77,8 @@ begin
 			key2 => key2,
 			rst => rst,
 			clk => clk,
+			cleanKey3 => key3Pressed,
+			cleanKey2 => key2Pressed,
 			roll_1 => roll_1,
 			roll_2 => roll_2
 		);
@@ -81,6 +87,8 @@ begin
 	port map(
 		roll_1 => roll_1,
 		roll_2 => roll_2,
+		roll_1_pressed => key3Pressed,
+		roll_2_pressed => key2Pressed,
 		clk => clk,
 		rst => rst,
 		sum => sum,

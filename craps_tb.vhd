@@ -8,25 +8,33 @@ architecture beh of craps_tb is
 	component craps_game
 		port(roll_1: in std_logic_vector(2 downto 0);
 			roll_2: in std_logic_vector(2 downto 0);
-			clock: in std_logic;
-			reset: in std_logic;
+			roll_1_pressed: in std_logic;
+			roll_2_pressed: in std_logic;
+			clk: in std_logic;
+			rst: in std_logic;
 			sum: out std_logic_vector(3 downto 0);
 			win: out std_logic;
-			lose: out std_logic);
+			lose: out std_logic;
+			roll_1_stored: out std_logic_vector(2 downto 0);
+			roll_2_stored: out std_logic_vector(2 downto 0));
 	end component;
 	
-	signal roll_1_s, roll_2_s: std_logic_vector(2 downto 0);
-	signal clock_s, reset_s, win_s, lose_s: std_logic;
+	signal roll_1_s, roll_2_s, roll_1_stored_s, roll_2_stored_s: std_logic_vector(2 downto 0);
+	signal clock_s, reset_s, win_s, lose_s, roll_1_pressed_s, roll_2_pressed_s: std_logic;
 	signal sum_s: std_logic_vector(3 downto 0);
 	
 begin
 	craps_game_inst: craps_game port map(roll_1 => roll_1_s,
 											roll_2 => roll_2_s,
-											clock => clock_s,
-											reset => reset_s,
+											roll_1_pressed => roll_1_pressed_s,
+											roll_2_pressed => roll_2_pressed_s,
+											clk => clock_s,
+											rst => reset_s,
 											sum => sum_s,
 											win => win_s,
-											lose => lose_s);
+											lose => lose_s,
+											roll_1_stored => roll_1_stored_s,
+											roll_2_stored => roll_2_stored_s);
 											
 	clock:process
 	begin
@@ -154,6 +162,8 @@ begin
 		roll_1_s <= "000";
 		roll_2_s <= "000";
 		reset_s <= '0';
+		roll_1_pressed_s <= '1';
+		roll_2_pressed_s <= '1';
 		wait for 20 ns;
 		reset_s <= '1';
 		wait for 20 ns;

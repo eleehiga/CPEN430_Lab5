@@ -15,6 +15,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity craps_game is
 	port(roll_1: in std_logic_vector(2 downto 0);
 			roll_2: in std_logic_vector(2 downto 0);
+			roll_1_pressed: in std_logic;
+			roll_2_pressed: in std_logic;
 			clk: in std_logic;
 			rst: in std_logic;
 			sum: out std_logic_vector(3 downto 0);
@@ -25,6 +27,7 @@ entity craps_game is
 end craps_game;
 
 architecture rtl of craps_game is
+	signal lastPress1, lastPress2, currPress1, currPress2: std_logic;
 	type state_t_game is (firstroll, firstroll_check, morerolls, morerolls_check, win_s, lose_s);
 	signal currstate_game, nextstate_game: state_t_game;
 	type state_t_rolls is (nochange, changed_roll_1, changed_roll_2, both_rolls_changed);
@@ -45,6 +48,10 @@ begin
 			currchanged_1 <= '0';
 			currchanged_2 <= '0';
 			currpoint <= "0000";
+			lastPress1 <= '1';
+			lastPress2 <= '1';
+			currPress1 <= '1';
+			currPress2 <= '1';
 		elsif (clk'event and clk = '1') then
 			currstate_game <= nextstate_game;
 			currstate_rolls <= nextstate_rolls;
@@ -54,6 +61,10 @@ begin
 			currchanged_1 <= nextchanged_1;
 			currchanged_2 <= nextchanged_2;
 			currpoint <= nextpoint;
+			lastPress1 <= currPress1;
+			lastPress2 <= currPress2;
+			currPress1 <= roll_1_pressed;
+			currPress2 <= roll_2_pressed;
 		end if;
 	end process;
 	
@@ -98,10 +109,13 @@ begin
 		
 	end process;
 	
-	changed_flag_statemachines: process(nextroll_1, currroll_1, nextroll_2, currroll_2, currstate_rolls, rst)
+	changed_flag_statemachines: process(rst, currstate_rolls, roll_1_pressed, roll_2_pressed, currchanged_1, currchanged_2, currPress1, currPress2, lastPress1, lastPress2)
 	begin
 		-- set flags if change is detected
-		if(nextroll_1 /= currroll_1 and rst = '1') then
+		if(rst = '0') then
+			nextchanged_1 <= '0';
+		-- on rising edge of button press set change flag to 1
+		elsif(currPress1 = '1' and lastPress1 = '0') then
 			nextchanged_1 <= '1';
 		-- reset flags if currstate_rolls is both changed
 		elsif(currstate_rolls = both_rolls_changed) then
@@ -112,7 +126,10 @@ begin
 		end if;
 		
 		-- set flags if change is detected
-		if(nextroll_2 /= currroll_2 and rst = '1') then
+		if(rst ='0') then
+			nextchanged_2 <= '0';
+		-- on rising edge of button press set change flag to 1
+		elsif(currPress2 = '1' and lastPress2 = '0') then
 			nextchanged_2 <= '1';
 		-- reset flags if currstate_rolls is both changed
 		elsif(currstate_rolls = both_rolls_changed) then
@@ -153,7 +170,7 @@ begin
 						-- set point register
 						nextpoint <= currsum;
 						-- reset sum
-						nextsum <= "0000";
+						nextsum <= currsum;
 						-- go to next state of the game -> more rolls needed
 						nextstate_game <= morerolls;
 				end case;
@@ -178,7 +195,7 @@ begin
 				-- go back to more rolls state otherwise
 				else
 					-- reset sum
-					nextsum <= "0000";
+					nextsum <= currsum;
 					-- more rolls needed
 					nextstate_game <= morerolls;
 				end if;

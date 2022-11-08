@@ -7,6 +7,8 @@ port (	key3:			in std_logic;
 	key2:			in std_logic;
 	rst:			in std_logic;
 	clk:			in std_logic;
+	cleanKey3: out std_logic;
+	cleanKey2: out std_logic;
 	roll_1:			out std_logic_vector(2 downto 0);
 	roll_2:			out std_logic_vector(2 downto 0)
 );
@@ -113,5 +115,6 @@ begin
 
 	roll_1 <= curr_out_roll1;
 	roll_2 <= curr_out_roll2;
-
+	cleanKey3 <= pressed_key3;
+	cleanKey2 <= pressed_key2;
 end rtl;
