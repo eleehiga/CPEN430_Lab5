@@ -17,12 +17,10 @@ end keys;
 -- when keys pushed they go to zero
 architecture rtl of keys is -- call output logic
 signal count, count_d: std_logic_vector(7 downto 0);
-signal clean_key2, clean_key3, q1_key2, q2_key2, q1_key3, q2_key3: std_logic;
 signal curr_in_roll1, curr_in_roll2, next_in_roll1, next_in_roll2,
 	curr_out_roll1, curr_out_roll2, next_out_roll1, next_out_roll2: std_logic_vector(2 downto 0);
-signal pressed_key3, pressed_key2, temp_key3, temp_key2: std_logic;
+signal clean_key2, clean_key3, pressed_key3, pressed_key2, temp_key3, temp_key2: std_logic;
 begin 
-
 	debouncer_key3: process(key3, clk)
 	begin -- edge detector, falling edge and then 'not' that to be zero
 		if(clk='1' and clk'event) then
@@ -57,13 +55,13 @@ begin
 			temp_key3 <= '1';
 			temp_key2 <= '1';
 		elsif(clk='1' and clk'event) then
-			curr_in_roll1 <= next_in_roll1;
+			curr_in_roll1 <= next_in_roll1; -- update from temp next_in
 			curr_in_roll2 <= next_in_roll2;
 			curr_out_roll1 <= next_out_roll1;
 			curr_out_roll2 <= next_out_roll2;
 			pressed_key3 <= clean_key3;
 			pressed_key2 <= clean_key2;
-			temp_key3 <= key3;
+			temp_key3 <= key3; -- saves key state to compare with
 			temp_key2 <= key2;
 		end if;
 	end process rst_roll;
@@ -72,7 +70,7 @@ begin
 	begin
 		if(pressed_key3 = '0') then
 			if(unsigned(curr_in_roll1) > 5) then
-				next_in_roll1 <= "001";
+				next_in_roll1 <= "001"; -- resets rolls if >5
 			else
 				next_in_roll1 <= std_logic_vector(unsigned(curr_in_roll1) + 1);
 			end if;
@@ -97,7 +95,7 @@ begin
 	update_out_roll1: process(pressed_key3, curr_out_roll1, curr_in_roll1)
 	begin
 		if(pressed_key3 = '0') then
-			next_out_roll1 <= curr_out_roll1;
+			next_out_roll1 <= curr_out_roll1; -- assign to temp next_out
 		else
 			next_out_roll1 <= curr_in_roll1;
 		end if;
@@ -113,8 +111,8 @@ begin
 		end if;
 	end process update_out_roll2;
 
-	roll_1 <= curr_out_roll1;
+	roll_1 <= curr_out_roll1; -- dummy assignment to actual roll1
 	roll_2 <= curr_out_roll2;
-	cleanKey3 <= pressed_key3;
+	cleanKey3 <= pressed_key3; -- dummy assignment to actual cleanKey3
 	cleanKey2 <= pressed_key2;
 end rtl;
