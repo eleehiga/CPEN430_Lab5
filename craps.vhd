@@ -30,8 +30,10 @@ architecture rtl of craps_game is
 	signal lastPress1, lastPress2, currPress1, currPress2: std_logic;
 	type state_t_game is (firstroll, firstroll_check, morerolls, morerolls_check, win_s, lose_s);
 	signal currstate_game, nextstate_game: state_t_game;
+	-- state machine for the game
 	type state_t_rolls is (nochange, changed_roll_1, changed_roll_2, both_rolls_changed);
 	signal currstate_rolls, nextstate_rolls: state_t_rolls;
+	-- state machine for the rolls
 	signal currsum, nextsum: unsigned(3 downto 0);
 	signal currpoint, nextpoint: unsigned(3 downto 0);
 	signal currroll_1, currroll_2, nextroll_1, nextroll_2: unsigned(2 downto 0);
@@ -53,21 +55,22 @@ begin
 			currPress1 <= '1';
 			currPress2 <= '1';
 		elsif (clk'event and clk = '1') then
-			currstate_game <= nextstate_game;
-			currstate_rolls <= nextstate_rolls;
+			currstate_game <= nextstate_game; -- update game state
+			currstate_rolls <= nextstate_rolls; -- update rolls state
 			currsum <= nextsum;
 			currroll_1 <= nextroll_1;
 			currroll_2 <= nextroll_2;
-			currchanged_1 <= nextchanged_1;
+			currchanged_1 <= nextchanged_1; -- detects new roll
 			currchanged_2 <= nextchanged_2;
 			currpoint <= nextpoint;
-			lastPress1 <= currPress1;
+			lastPress1 <= currPress1; -- update what the last press is
 			lastPress2 <= currPress2;
-			currPress1 <= roll_1_pressed;
+			currPress1 <= roll_1_pressed; -- update the current press
 			currPress2 <= roll_2_pressed;
 		end if;
 	end process;
 	
+	-- state machine for managing the rolls
 	state_machine_rolls: process(currstate_rolls, roll_1, roll_2, currroll_1, currroll_2, currstate_game)
 	begin
 		
@@ -79,7 +82,7 @@ begin
 				-- continue taking in rolls waiting for change
 				nextroll_1 <= unsigned(roll_1);
 				nextroll_2 <= unsigned(roll_2);
-				if(currchanged_1 = '1') then
+				if(currchanged_1 = '1') then -- if changed
 					nextstate_rolls <= changed_roll_1;
 				elsif(currchanged_2 = '1') then
 					nextstate_rolls <= changed_roll_2;
@@ -100,15 +103,18 @@ begin
 				end if;
 			-- roll over until the state machine for the game changes to the checking states
 			when both_rolls_changed => 
+				-- if nothing did change
 				if((currstate_game = firstroll_check) or (currstate_game = morerolls_check)) then
 					nextstate_rolls <= nochange;
 				end if;
+				-- will set next to be what it was before with cur
 				nextroll_1 <= currroll_1;
 				nextroll_2 <= currroll_2;
 		end case;
 		
 	end process;
 	
+	-- state machine for detecting a new roll using the keys that are pressed
 	changed_flag_statemachines: process(rst, currstate_rolls, roll_1_pressed, roll_2_pressed, currchanged_1, currchanged_2, currPress1, currPress2, lastPress1, lastPress2)
 	begin
 		-- set flags if change is detected
